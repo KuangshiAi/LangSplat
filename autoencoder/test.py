@@ -28,7 +28,7 @@ if __name__ == '__main__':
     encoder_hidden_dims = args.encoder_dims
     decoder_hidden_dims = args.decoder_dims
     dataset_path = args.dataset_path
-    ckpt_path = f"ckpt/{dataset_name}/best_ckpt.pth"
+    ckpt_path = f"/home/kuangshiai/Documents/LangSplat-results/autoencoder_ckpt/{dataset_name}/best_ckpt.pth"
 
     data_dir = f"{dataset_path}/language_features"
     output_dir = f"{dataset_path}/language_features_dim3"

@@ -67,6 +67,18 @@ The optimizer uses PyTorch and CUDA extensions in a Python environment to produc
 ### Setup
 
 #### Environment Setup
+Switch to CUDA 11.8
+```shell
+vim ~/.zshrc
+export CUDA_HOME=/usr/local/cuda-11.8
+export PATH=$CUDA_HOME/bin:$PATH
+export LD_LIBRARY_PATH=$CUDA_HOME/lib64:$LD_LIBRARY_PATH
+source ~/.zshrc
+```
+Verify by:
+```shell
+nvcc --version
+```
 
 Our default, provided install method is based on Conda package and environment management:
 ```shell

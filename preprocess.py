@@ -297,6 +297,9 @@ def sam_encoder(image):
     image = cv2.cvtColor(image[0].permute(1,2,0).numpy().astype(np.uint8), cv2.COLOR_BGR2RGB)
     # pre-compute masks
     masks_default, masks_s, masks_m, masks_l = mask_generator.generate(image)
+
+    # print(f"Number of masks generated for image: default={len(masks_default)}, s={len(masks_s)}, m={len(masks_m)}, l={len(masks_l)}")
+    
     # pre-compute postprocess
     masks_default, masks_s, masks_m, masks_l = \
         masks_update(masks_default, masks_s, masks_m, masks_l, iou_thr=0.8, score_thr=0.7, inner_thr=0.5)
@@ -307,7 +310,12 @@ def sam_encoder(image):
         for i in range(len(masks)):
             mask = masks[i]
             seg_img = get_seg_img(mask, image)
-            pad_seg_img = cv2.resize(pad_img(seg_img), (224,224))
+            padded_img = pad_img(seg_img)
+            if padded_img.shape[0] == 0 or padded_img.shape[1] == 0:
+                print("Skipping resize due to invalid shape:", padded_img.shape)
+                pad_seg_img = np.zeros((224,224,3), dtype=np.uint8)
+            else:
+                pad_seg_img = cv2.resize(padded_img, (224, 224))
             seg_img_list.append(pad_seg_img)
 
             seg_map[masks[i]['segmentation']] = i
@@ -318,12 +326,23 @@ def sam_encoder(image):
 
     seg_images, seg_maps = {}, {}
     seg_images['default'], seg_maps['default'] = mask2segmap(masks_default, image)
+    # Process 's' masks if not empty
     if len(masks_s) != 0:
         seg_images['s'], seg_maps['s'] = mask2segmap(masks_s, image)
+    else:
+        print("No 's' masks generated; skipping 's' mask processing.")
+
+    # Similarly handle 'm' masks
     if len(masks_m) != 0:
         seg_images['m'], seg_maps['m'] = mask2segmap(masks_m, image)
+    else:
+        print("No 'm' masks generated; skipping 'm' mask processing.")
+
+    # Similarly handle 'l' masks
     if len(masks_l) != 0:
         seg_images['l'], seg_maps['l'] = mask2segmap(masks_l, image)
+    else:
+        print("No 'l' masks generated; skipping 'l' mask processing.")
     
     # 0:default 1:s 2:m 3:l
     return seg_images, seg_maps
@@ -348,7 +367,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataset_path', type=str, required=True)
     parser.add_argument('--resolution', type=int, default=-1)
-    parser.add_argument('--sam_ckpt_path', type=str, default="ckpts/sam_vit_h_4b8939.pth")
+    parser.add_argument('--sam_ckpt_path', type=str, default="/home/kuangshiai/Documents/LangSplat-results/sam_ckpt/sam_vit_h_4b8939.pth")
     args = parser.parse_args()
     torch.set_default_dtype(torch.float32)
 
@@ -376,6 +395,10 @@ if __name__ == '__main__':
     for data_path in data_list:
         image_path = os.path.join(img_folder, data_path)
         image = cv2.imread(image_path)
+
+        if image is None:
+            print(f"Failed to load image {image_path}")
+            continue
 
         orig_w, orig_h = image.shape[1], image.shape[0]
         if args.resolution == -1:
