@@ -1,1 +1,0 @@
-Namespace(data_device='cuda', eval=False, feature_level=1, images='images', language_features_name='language_features_dim3', lf_path='/home/kuangshiai/Documents/LangSplat/language_features_dim3', model_path='_1', resolution=-1, sh_degree=3, source_path='/home/kuangshiai/Documents/LangSplat', white_background=True)
