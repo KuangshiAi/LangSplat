@@ -1,32 +1,261 @@
 #!/bin/bash
 
-# get the language feature of the scene
-#python preprocess.py --dataset_name $dataset_path
-
-# train the autoencoder
-#cd autoencoder
-#python train.py --dataset_path $dataset_path --encoder_dims 256 128 64 32 3 --decoder_dims 16 32 64 128 256 256 512 --lr 0.0007 --dataset_name ae_ckpt
-# e.g. python train.py --dataset_path ../data/sofa --encoder_dims 256 128 64 32 3 --decoder_dims 16 32 64 128 256 256 512 --lr 0.0007 --dataset_name sofa
-
-# get the 3-dims language feature of the scene
-#python test.py --dataset_name $dataset_path --dataset_name $dataset_name
-# e.g. python test.py --dataset_path ../data/sofa --dataset_name sofa
-
-# ATTENTION: Before you train the LangSplat, please follow https://github.com/graphdeco-inria/gaussian-splatting
-# to train the RGB 3D Gaussian Splatting model.
-# put the path of your RGB model after '--start_checkpoint'
+# Define the dataset path and output result path
+dataset_path="/home/kuangshiai/Documents/Datasets/LangSplat/backpack"
+dataset_name="backpack"
+result_path="/home/kuangshiai/Documents/LangSplat-results/output/backpack"
 
 for level in 1 2 3
 do
-    python train.py -s /home/kuangshiai/Documents/Datasets/LangSplat/backpack -m /home/kuangshiai/Documents/LangSplat-results/output/backpack --start_checkpoint /home/kuangshiai/Documents/Datasets/LangSplat/backpack/output/chkpnt30000.pth --feature_level ${level}
-    # e.g. python train.py -s data/sofa -m output/sofa --start_checkpoint data/sofa/sofa/chkpnt30000.pth --feature_level 3
+    python train.py -s "$dataset_path" -m "$result_path" --start_checkpoint "${dataset_path}/output/chkpnt30000.pth" --feature_level "$level"
+    # Example usage:
+    # python train.py -s data/sofa -m output/sofa --start_checkpoint data/sofa/sofa/chkpnt30000.pth --feature_level 3
 done
 
 for level in 1 2 3
 do
-    # render rgb
-    python render.py -m /home/kuangshiai/Documents/LangSplat-results/output/backpack_${level}
-    # render language features
-    python render.py -m /home/kuangshiai/Documents/LangSplat-results/output/backpack_${level} --include_feature
-    # e.g. python render.py -m output/sofa_3 --include_feature
+    # Render RGB output
+    python render.py -m "${result_path}_${level}"
+    # Render language feature output
+    python render.py -m "${result_path}_${level}" --include_feature
+    # Example usage:
+    # python render.py -m output/sofa_3 --include_feature
 done
+
+#!/bin/bash
+
+# Define the dataset path and output result path
+dataset_path="/home/kuangshiai/Documents/Datasets/LangSplat/bonsai"
+dataset_name="bonsai"
+result_path="/home/kuangshiai/Documents/LangSplat-results/output/bonsai"
+
+# Step 1: Extract the language features of the scene
+python preprocess.py --dataset_path "$dataset_path"
+
+# Step 2: Train the autoencoder model
+cd autoencoder
+python train.py --dataset_path "$dataset_path" --encoder_dims 256 128 64 32 3 --decoder_dims 16 32 64 128 256 256 512 --lr 0.0007 --dataset_name "$dataset_name"
+# Example usage:
+# python train.py --dataset_path ../data/sofa --encoder_dims 256 128 64 32 3 --decoder_dims 16 32 64 128 256 256 512 --lr 0.0007 --dataset_name sofa
+
+# Step 3: Generate the 3-dimensional language features of the scene
+python test.py --dataset_path "$dataset_path" --dataset_name "$dataset_name"
+# Example usage:
+# python test.py --dataset_path ../data/sofa --dataset_name sofa
+
+# NOTE: Before training LangSplat, train the RGB 3D Gaussian Splatting model.
+# Refer to https://github.com/graphdeco-inria/gaussian-splatting for instructions.
+# Set the path of your RGB model as '--start_checkpoint'
+cd ..
+
+for level in 1 2 3
+do
+    python train.py -s "$dataset_path" -m "$result_path" --start_checkpoint "${dataset_path}/output/chkpnt30000.pth" --feature_level "$level"
+    # Example usage:
+    # python train.py -s data/sofa -m output/sofa --start_checkpoint data/sofa/sofa/chkpnt30000.pth --feature_level 3
+done
+
+for level in 1 2 3
+do
+    # Render RGB output
+    python render.py -m "${result_path}_${level}"
+    # Render language feature output
+    python render.py -m "${result_path}_${level}" --include_feature
+    # Example usage:
+    # python render.py -m output/sofa_3 --include_feature
+done
+
+#!/bin/bash
+
+# Define the dataset path and output result path
+dataset_path="/home/kuangshiai/Documents/Datasets/LangSplat/fivejets"
+dataset_name="fivejets"
+result_path="/home/kuangshiai/Documents/LangSplat-results/output/fivejets"
+
+# Step 1: Extract the language features of the scene
+python preprocess.py --dataset_path "$dataset_path"
+
+# Step 2: Train the autoencoder model
+cd autoencoder
+python train.py --dataset_path "$dataset_path" --encoder_dims 256 128 64 32 3 --decoder_dims 16 32 64 128 256 256 512 --lr 0.0007 --dataset_name "$dataset_name"
+# Example usage:
+# python train.py --dataset_path ../data/sofa --encoder_dims 256 128 64 32 3 --decoder_dims 16 32 64 128 256 256 512 --lr 0.0007 --dataset_name sofa
+
+# Step 3: Generate the 3-dimensional language features of the scene
+python test.py --dataset_path "$dataset_path" --dataset_name "$dataset_name"
+# Example usage:
+# python test.py --dataset_path ../data/sofa --dataset_name sofa
+
+# NOTE: Before training LangSplat, train the RGB 3D Gaussian Splatting model.
+# Refer to https://github.com/graphdeco-inria/gaussian-splatting for instructions.
+# Set the path of your RGB model as '--start_checkpoint'
+cd ..
+
+for level in 1 2 3
+do
+    python train.py -s "$dataset_path" -m "$result_path" --start_checkpoint "${dataset_path}/output/chkpnt30000.pth" --feature_level "$level"
+    # Example usage:
+    # python train.py -s data/sofa -m output/sofa --start_checkpoint data/sofa/sofa/chkpnt30000.pth --feature_level 3
+done
+
+for level in 1 2 3
+do
+    # Render RGB output
+    python render.py -m "${result_path}_${level}"
+    # Render language feature output
+    python render.py -m "${result_path}_${level}" --include_feature
+    # Example usage:
+    # python render.py -m output/sofa_3 --include_feature
+done
+
+#!/bin/bash
+
+# Define the dataset path and output result path
+dataset_path="/home/kuangshiai/Documents/Datasets/LangSplat/vorts"
+dataset_name="vorts"
+result_path="/home/kuangshiai/Documents/LangSplat-results/output/vorts"
+
+# Step 1: Extract the language features of the scene
+python preprocess.py --dataset_path "$dataset_path"
+
+# Step 2: Train the autoencoder model
+cd autoencoder
+python train.py --dataset_path "$dataset_path" --encoder_dims 256 128 64 32 3 --decoder_dims 16 32 64 128 256 256 512 --lr 0.0007 --dataset_name "$dataset_name"
+# Example usage:
+# python train.py --dataset_path ../data/sofa --encoder_dims 256 128 64 32 3 --decoder_dims 16 32 64 128 256 256 512 --lr 0.0007 --dataset_name sofa
+
+# Step 3: Generate the 3-dimensional language features of the scene
+python test.py --dataset_path "$dataset_path" --dataset_name "$dataset_name"
+# Example usage:
+# python test.py --dataset_path ../data/sofa --dataset_name sofa
+
+# NOTE: Before training LangSplat, train the RGB 3D Gaussian Splatting model.
+# Refer to https://github.com/graphdeco-inria/gaussian-splatting for instructions.
+# Set the path of your RGB model as '--start_checkpoint'
+cd ..
+
+for level in 1 2 3
+do
+    python train.py -s "$dataset_path" -m "$result_path" --start_checkpoint "${dataset_path}/output/chkpnt30000.pth" --feature_level "$level"
+    # Example usage:
+    # python train.py -s data/sofa -m output/sofa --start_checkpoint data/sofa/sofa/chkpnt30000.pth --feature_level 3
+done
+
+for level in 1 2 3
+do
+    # Render RGB output
+    python render.py -m "${result_path}_${level}"
+    # Render language feature output
+    python render.py -m "${result_path}_${level}" --include_feature
+    # Example usage:
+    # python render.py -m output/sofa_3 --include_feature
+done
+
+#!/bin/bash
+
+# Define the dataset path and output result path
+dataset_path="/home/kuangshiai/Documents/Datasets/LangSplat/backpack_obj"
+dataset_name="backpack_obj"
+result_path="/home/kuangshiai/Documents/LangSplat-results/output/backpack_obj"
+
+# Step 1: Extract the language features of the scene
+python preprocess.py --dataset_path "$dataset_path"
+
+# Step 2: Train the autoencoder model
+cd autoencoder
+python train.py --dataset_path "$dataset_path" --encoder_dims 256 128 64 32 3 --decoder_dims 16 32 64 128 256 256 512 --lr 0.0007 --dataset_name "$dataset_name"
+# Example usage:
+# python train.py --dataset_path ../data/sofa --encoder_dims 256 128 64 32 3 --decoder_dims 16 32 64 128 256 256 512 --lr 0.0007 --dataset_name sofa
+
+# Step 3: Generate the 3-dimensional language features of the scene
+python test.py --dataset_path "$dataset_path" --dataset_name "$dataset_name"
+# Example usage:
+# python test.py --dataset_path ../data/sofa --dataset_name sofa
+
+# NOTE: Before training LangSplat, train the RGB 3D Gaussian Splatting model.
+# Refer to https://github.com/graphdeco-inria/gaussian-splatting for instructions.
+# Set the path of your RGB model as '--start_checkpoint'
+cd ..
+
+for level in 1 2 3
+do
+    python train.py -s "$dataset_path" -m "$result_path" --start_checkpoint "${dataset_path}/output/chkpnt30000.pth" --feature_level "$level"
+    # Example usage:
+    # python train.py -s data/sofa -m output/sofa --start_checkpoint data/sofa/sofa/chkpnt30000.pth --feature_level 3
+done
+
+for level in 1 2 3
+do
+    # Render RGB output
+    python render.py -m "${result_path}_${level}"
+    # Render language feature output
+    python render.py -m "${result_path}_${level}" --include_feature
+    # Example usage:
+    # python render.py -m output/sofa_3 --include_feature
+done
+
+#!/bin/bash
+
+# Define the dataset path and output result path
+dataset_path="/home/kuangshiai/Documents/Datasets/LangSplat/backpack_my"
+dataset_name="backpack_my"
+result_path="/home/kuangshiai/Documents/LangSplat-results/output/backpack_my"
+
+# Step 1: Extract the language features of the scene
+python preprocess.py --dataset_path "$dataset_path"
+
+# Step 2: Train the autoencoder model
+cd autoencoder
+python train.py --dataset_path "$dataset_path" --encoder_dims 256 128 64 32 3 --decoder_dims 16 32 64 128 256 256 512 --lr 0.0007 --dataset_name "$dataset_name"
+# Example usage:
+# python train.py --dataset_path ../data/sofa --encoder_dims 256 128 64 32 3 --decoder_dims 16 32 64 128 256 256 512 --lr 0.0007 --dataset_name sofa
+
+# Step 3: Generate the 3-dimensional language features of the scene
+python test.py --dataset_path "$dataset_path" --dataset_name "$dataset_name"
+# Example usage:
+# python test.py --dataset_path ../data/sofa --dataset_name sofa
+
+# NOTE: Before training LangSplat, train the RGB 3D Gaussian Splatting model.
+# Refer to https://github.com/graphdeco-inria/gaussian-splatting for instructions.
+# Set the path of your RGB model as '--start_checkpoint'
+cd ..
+
+for level in 1 2 3
+do
+    python train.py -s "$dataset_path" -m "$result_path" --start_checkpoint "${dataset_path}/output/chkpnt30000.pth" --feature_level "$level"
+    # Example usage:
+    # python train.py -s data/sofa -m output/sofa --start_checkpoint data/sofa/sofa/chkpnt30000.pth --feature_level 3
+done
+
+for level in 1 2 3
+do
+    # Render RGB output
+    python render.py -m "${result_path}_${level}"
+    # Render language feature output
+    python render.py -m "${result_path}_${level}" --include_feature
+    # Example usage:
+    # python render.py -m output/sofa_3 --include_feature
+done
+
+#!/bin/bash
+
+# Define the dataset path and output result path
+dataset_path="/home/kuangshiai/Documents/Datasets/LangSplat/backpack_iso"
+dataset_name="backpack_iso"
+result_path="/home/kuangshiai/Documents/LangSplat-results/output/backpack_iso"
+
+# Step 2: Train the autoencoder model
+cd autoencoder
+python train.py --dataset_path "$dataset_path" --encoder_dims 256 128 64 32 3 --decoder_dims 16 32 64 128 256 256 512 --lr 0.0007 --dataset_name "$dataset_name"
+# Example usage:
+# python train.py --dataset_path ../data/sofa --encoder_dims 256 128 64 32 3 --decoder_dims 16 32 64 128 256 256 512 --lr 0.0007 --dataset_name sofa
+
+# Step 3: Generate the 3-dimensional language features of the scene
+python test.py --dataset_path "$dataset_path" --dataset_name "$dataset_name"
+# Example usage:
+# python test.py --dataset_path ../data/sofa --dataset_name sofa
+
+# NOTE: Before training LangSplat, train the RGB 3D Gaussian Splatting model.
+# Refer to https://github.com/graphdeco-inria/gaussian-splatting for instructions.
+# Set the path of your RGB model as '--start_checkpoint'
+cd ..

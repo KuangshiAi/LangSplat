@@ -37,7 +37,8 @@ def show_result(image, point, bbox, save_path):
     input_point = point.reshape(1,-1)
     input_label = np.array([1])
     show_points(input_point, input_label, plt.gca())
-    show_box(bbox, plt.gca())
+    if bbox is not None:
+        show_box(bbox, plt.gca())
     plt.axis('off')
     plt.savefig(save_path, bbox_inches='tight', pad_inches=0.0, dpi=200)
     plt.close()

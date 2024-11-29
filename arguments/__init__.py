@@ -52,7 +52,7 @@ class ModelParams(ParamGroup):
         self._language_features_name = "language_features_dim3"
         self._images = "images"
         self._resolution = -1
-        self._white_background = False
+        self._white_background = True
         self._feature_level = -1
         self.data_device = "cuda"
         self.eval = False

@@ -71,6 +71,15 @@ class OpenCLIPNetwork:
                 ).to(self.neg_embeds.device)
             self.pos_embeds = self.model.encode_text(tok_phrases)
         self.pos_embeds /= self.pos_embeds.norm(dim=-1, keepdim=True)
+
+    def set_negatives(self, text_list):
+        self.negatives = text_list
+        with torch.no_grad():
+            tok_phrases = torch.cat(
+                [self.tokenizer(phrase) for phrase in self.negatives]
+                ).to(self.neg_embeds.device)
+            self.neg_embeds = self.model.encode_text(tok_phrases)
+        self.neg_embeds /= self.neg_embeds.norm(dim=-1, keepdim=True)
     
     def set_semantics(self, text_list):
         self.semantic_labels = text_list

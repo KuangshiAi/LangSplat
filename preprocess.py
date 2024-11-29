@@ -373,7 +373,7 @@ if __name__ == '__main__':
 
     dataset_path = args.dataset_path
     sam_ckpt_path = args.sam_ckpt_path
-    img_folder = os.path.join(dataset_path, 'images')
+    img_folder = os.path.join(dataset_path, 'train')
     data_list = os.listdir(img_folder)
     data_list.sort()
 

@@ -24,8 +24,12 @@ from gaussian_renderer import GaussianModel
 def render_set(model_path, source_path, name, iteration, views, gaussians, pipeline, background, args):
     render_path = os.path.join(model_path, name, "ours_{}".format(iteration), "renders")
     gts_path = os.path.join(model_path, name, "ours_{}".format(iteration), "gt")
-    render_npy_path = os.path.join(model_path, name, "ours_{}".format(iteration), "renders_npy")
-    gts_npy_path = os.path.join(model_path, name, "ours_{}".format(iteration), "gt_npy")
+    if args.include_feature:
+        render_npy_path = os.path.join(model_path, name, "ours_{}".format(iteration), "renders_npy")
+        gts_npy_path = os.path.join(model_path, name, "ours_{}".format(iteration), "gt_npy")
+    else:
+        render_npy_path = os.path.join(model_path, name, "ours_{}".format(iteration), "rendersRGB_npy")
+        gts_npy_path = os.path.join(model_path, name, "ours_{}".format(iteration), "gtRGB_npy")
 
     makedirs(render_npy_path, exist_ok=True)
     makedirs(gts_npy_path, exist_ok=True)
@@ -38,7 +42,12 @@ def render_set(model_path, source_path, name, iteration, views, gaussians, pipel
         if not args.include_feature:
             rendering = output["render"]
         else:
-            rendering = output["language_feature_image"]
+            rendering = output["language_feature_image"] #[3, H, W]
+            # change any point that is black to white
+            mask = (rendering[0] == 0) & (rendering[1] == 0) & (rendering[2] == 0)
+            rendering[0][mask] = 1
+            rendering[1][mask] = 1
+            rendering[2][mask] = 1
             
         if not args.include_feature:
             gt = view.original_image[0:3, :, :]
@@ -59,7 +68,7 @@ def render_sets(dataset : ModelParams, iteration : int, pipeline : PipelineParam
         (model_params, first_iter) = torch.load(checkpoint)
         gaussians.restore(model_params, args, mode='test')
         
-        bg_color = [1,1,1] if dataset.white_background else [0, 0, 0]
+        bg_color = [1, 1, 1] if dataset.white_background else [0, 0, 0]
         background = torch.tensor(bg_color, dtype=torch.float32, device="cuda")
 
         if not skip_train:

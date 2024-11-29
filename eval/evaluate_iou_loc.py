@@ -94,6 +94,11 @@ def activate_stream(sem_map,
                     img_ann: Dict = None, 
                     thresh : float = 0.5, 
                     colormap_options = None):
+    '''
+    img_ann: dict()
+        keys: str(label)
+        values: dict() which contain 'bboxes' and 'mask'
+    '''
     valid_map = clip_model.get_max_across(sem_map)                 # 3xkx832x1264
     n_head, n_prompt, h, w = valid_map.shape
 
@@ -226,10 +231,17 @@ def evaluate(feat_dir, output_path, ae_ckpt_path, json_folder, mask_thresh, enco
         colormap_min=-1.0,
         colormap_max=1.0,
     )
-
+    '''
+    gt_ann: dict()
+    keys: str(int(idx))
+    values: dict()
+        keys: str(label)
+        values: dict() which contain 'bboxes' and 'mask'
+    '''
     gt_ann, image_shape, image_paths = eval_gt_lerfdata(Path(json_folder), Path(output_path))
     eval_index_list = [int(idx) for idx in list(gt_ann.keys())]
     compressed_sem_feats = np.zeros((len(feat_dir), len(eval_index_list), *image_shape, 3), dtype=np.float32)
+    # iterate over all 3 semantic levels
     for i in range(len(feat_dir)):
         feat_paths_lvl = sorted(glob.glob(os.path.join(feat_dir[i], '*.npy')),
                                key=lambda file_name: int(os.path.basename(file_name).split(".npy")[0]))
@@ -245,6 +257,7 @@ def evaluate(feat_dir, output_path, ae_ckpt_path, json_folder, mask_thresh, enco
 
     chosen_iou_all, chosen_lvl_list = [], []
     acc_num = 0
+    # iterate over all test images
     for j, idx in enumerate(tqdm(eval_index_list)):
         image_name = Path(output_path) / f'{idx+1:0>5}'
         image_name.mkdir(exist_ok=True, parents=True)
@@ -256,12 +269,13 @@ def evaluate(feat_dir, output_path, ae_ckpt_path, json_folder, mask_thresh, enco
         rgb_img = torch.from_numpy(rgb_img).to(device)
 
         with torch.no_grad():
+            # lvl: level
             lvl, h, w, _ = sem_feat.shape
             restored_feat = model.decode(sem_feat.flatten(0, 2))
-            restored_feat = restored_feat.view(lvl, h, w, -1)           # 3x832x1264x512
+            restored_feat = restored_feat.view(lvl, h, w, -1)    # [3, h, w, 512]: 3x832x1264x512
         
         img_ann = gt_ann[f'{idx}']
-        clip_model.set_positives(list(img_ann.keys()))
+        clip_model.set_positives(list(img_ann.keys())) # set text labels as positive prompts
         
         c_iou_list, c_lvl = activate_stream(restored_feat, rgb_img, clip_model, image_name, img_ann,
                                             thresh=mask_thresh, colormap_options=colormap_options)
@@ -326,7 +340,7 @@ if __name__ == "__main__":
     mask_thresh = args.mask_thresh
     feat_dir = [os.path.join(args.feat_dir, dataset_name+f"_{i}", "train/ours_None/renders_npy") for i in range(1,4)]
     output_path = os.path.join(args.output_dir, dataset_name)
-    ae_ckpt_path = os.path.join(args.ae_ckpt_dir, dataset_name, "ae_ckpt/best_ckpt.pth")
+    ae_ckpt_path = os.path.join(args.ae_ckpt_dir, dataset_name, "best_ckpt.pth")
     json_folder = os.path.join(args.json_folder, dataset_name)
 
     # NOTE logger

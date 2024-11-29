@@ -1,0 +1,4 @@
+show me the string and remove water bottle, I want to see some details only
+show me the water bottle and remove toothpaste
+display the tumor over the right kidney, I do not want the right kidney to block my eyesight, and I want to see more detailed results
+visualize the patient's lung but do not let the trachea block my view
