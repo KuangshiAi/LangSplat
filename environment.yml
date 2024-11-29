@@ -1,4 +1,4 @@
-name: langsplat
+name: nl2scivis
 channels:
   - pytorch
   - conda-forge
